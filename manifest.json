@@ -1,0 +1,24 @@
+{
+    "manifest_version": 2,
+    "name": "sufing",
+    "version": "0.1.0",
+    "description": "help forecast for surfing and motorcycle",
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "images/icon16.png",
+            "24": "images/icon24.png",
+            "32": "images/icon32.png"
+        }
+    },
+    "permissions" : [
+        "bookmarks",
+        "storage",
+        "sessions",
+        "tabs",
+        "chrome://favicon/"],
+    "chrome_url_overrides" : {
+        "newtab": "popup.html"
+    }
+
+}
