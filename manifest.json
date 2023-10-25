@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Weather by hobby",
+  "version": "0.1.0",
+  "description": "Show relevant weather forecast according to selected hobby",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "24": "images/icon24.png",
+      "32": "images/icon32.png"
+    }
+  },
+  "permissions": [    
+  ],
+  "chrome_url_overrides": {
+    "newtab": "popup.html"
+  }
+}

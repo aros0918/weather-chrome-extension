@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>surfing</title>
+    <link href="popup.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body onunload="initial()">
+  <div id="display" >
+    <div >
+      <ul class="container">
+        <li><a class="item" href="https://breinapps.com/contact-us/index.html">Contact us</a></li>
+        <li><a class="item" href="https://breinapps.com/about-us/index.html">About us</a></li>
+        <li><a class="item" href="https://breinapps.com/privacy/index.html">Privacy Policy</a></li>
+        <li><a class="item" href="https://breinapps.com/terms/index.html">Terms Of Use</a></li>
+      </ul>
+    </div>
+    <div id="trans">
+      <div  id="format">
+        <div class="dropdown">  
+          <button class="dropbtn" style="background-color: #009879; min-width: 200px; max-height: 75px; min-height: 55px;" id="select">  
+            <img src="./images/icons8-surfing-48.png" style="width: 20px; margin-left: -20px;margin-right: 20px;"></img>Surfing<i class="fa fa-caret-down" style="margin-left:10px;"></i>
+          </button>  
+          <div class="dropdown-content">  
+              <a class="dropdown-item" id="surfingitem"> <img src="./images/icons8-surfing-48.png" style="width: 20px; margin-left: 10px;margin-right: 20px;"></img>   Surfing </a>  
+              <a class="dropdown-item" id="motoritem"> <i class="fa fa-motorcycle" style="margin-left: 10px;margin-right: 20px;"></i>Motorcycle </a>  
+              <a class="dropdown-item" id="cycleitem"> <i class="fa fa-bicycle" style="margin-left: 10px;margin-right: 20px;"></i> Cyclist </a> 
+              <a class="dropdown-item" id="hikingitem"> <i class="fas fa-hiking" style="margin-left: 10px;margin-right: 20px;"></i> &nbsp;&nbsp;Hiking </a>  
+          </div>  
+       </div> 
+      </div> 
+      <form action="" class="search-bar">
+        <input id="searchbar" type="search" name="search" placeholder="search">
+        <button class="search-btn" type="submit"></button>
+      </form>
+      
+      <div>
+        <header>
+          <input
+            type = "text"
+            autocomplete = "off"
+            class = "search_box"
+            placeholder ="Search for a city..."
+          />
+        </header>
+        <main>          
+          <div id="datatable">
+            <div id="loading"></div>
+            <table class="styled-table">
+              <thead>
+                  <tr>
+                      <th>day</th>
+                      <th id="wave">wave height</th>
+                      <th>wind speed</th>
+                      <th>temperature</th>
+                      <th>rain ratio</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr class = "first">
+                      <td class = "day"></td>
+                      <td class = "waveheight" id="wave1"></td>
+                      <td class = "wind"></td>
+                      <td class = "temperature"></td>
+                      <td class = "rainratio"></td>
+                  </tr>
+                  <tr class = "second">
+                      <td class = "day"></td>
+                      <td class = "waveheight" id="wave2"></td>
+                      <td class = "wind"></td>
+                      <td class = "temperature"></td>
+                      <td class = "rainratio"></td>
+                  </tr>
+                  <tr class = "third">
+                      <td class = "day"></td>
+                      <td class = "waveheight" id="wave3"></td>
+                      <td class = "wind"></td>
+                      <td class = "temperature"></td>
+                      <td class = "rainratio"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+        </main>
+      </div>
+    </div>
+    <div class="toast" id="toast2">
+      <div class="toast-content">
+        <i class="fas fa-solid fa-close check"></i>
+        <div class="message">
+          <span class="text text-1">Network Error</span>
+          <span class="text text-2">network error, could not get weather forecast</span>
+        </div>
+      </div>
+      <i class="fa fa-close close" id="close2"></i>
+      <div class="progress" id="progress2"></div>
+    </div>
+    <div class="toast" id="toast1">
+      <div class="toast-content">
+        <i class="fas fa-solid fa-close check"></i>
+        <div class="message">
+          <span class="text text-1">API Failed</span>
+          <span class="text text-2">Local weather data can't be fetched, displaying <p style="font-weight: bold;">California weather...</p></span>
+        </div>
+      </div>
+      <i class="fa fa-close close" id="close1"></i>
+      <div class="progress" id="progress1"></div>
+    </div>
+
+    
+  </div>
+
+  <script src='popup.js'></script>
+</body>
+</html>
