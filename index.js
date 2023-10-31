@@ -96,7 +96,10 @@ function getResults(query) {
         })
         .then(displayrainResults);
 }
-function set1(){
+function displayResults(response) {
+    hideLoading()
+    console.log(response);
+
     let fday = document.querySelector(".first .day");
     fday.innerHTML = `${response.forecast.forecastday[0].date}`;
 
@@ -132,9 +135,11 @@ function set1(){
 
     let ttem = document.querySelector(".third .temperature");
     ttem.innerHTML = `${response.forecast.forecastday[2].day.avgtemp_c} 'C`;
+      
 }
-function set2(){
-    
+function displayrainResults(response) {
+    console.log(response);
+
     let frain = document.querySelector(".first .rainratio");
     frain.innerHTML = `${response.forecast.forecastday[0].hour[10].chance_of_rain} %`;
 
@@ -143,15 +148,6 @@ function set2(){
 
     let train = document.querySelector(".third .rainratio");
     train.innerHTML = `${response.forecast.forecastday[2].hour[10].chance_of_rain} %`;  
-}
-function displayResults(response) {
-    hideLoading()
-    // console.log(response);
-    set1()   
-}
-function displayrainResults(response) {
-    // console.log(response);
-    set2()
 }
 function getLocalIPAddress(callback) {
     let xhr = new XMLHttpRequest();
