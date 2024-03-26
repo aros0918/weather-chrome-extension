@@ -270,7 +270,7 @@ function getGeolocationFromIP(ipAddress, callback) {
             }
         }
     };
-    xhr.open('GET', 'https://ipapi.co/' + ipAddress + '/json/');
+    xhr.open('GET', 'https://api.ipbase.com/v1/json/' + ipAddress + '/');
     xhr.send();
 }
 function getLocalIPAddress(callback) {
