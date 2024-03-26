@@ -1,8 +1,3 @@
-const apiKey = {
-    // weatherKey: '9e6b52dd1ba741fcb5b62411230410',
-    weatherKey: '160f961431c641d59dd75510231810',
-    key: 'apple',
-}
 let sday = document.querySelector(".second .day");
 const image = document.getElementById("image");
 const table = document.getElementById("datatable");
@@ -17,99 +12,225 @@ const toast1 = document.getElementById("toast1");
 const toast2 = document.getElementById("toast2");
 const progress1 = document.getElementById("progress1");
 const progress2 = document.getElementById("progress2");
+const searchBox = document.querySelector(".search_box");
+
 let selectedOption;
 let selectedValue;
 let remember;
 let ipAddress;
-
 let timer1, timer2, timer3;
-
-function displayLoading() {
-    loader.classList.add("display");
-    setTimeout(() => {
-        loader.classList.remove("display");
-        setTimeout(() => {
-            if(sday.innerHTML == ''){
-                toast2.style.display = "block";
-    
-                toast2.classList.add("active");
-                progress2.classList.add("active");
-    
-                timer1 = setTimeout(() => {
-                    toast2.classList.remove("active");
-                }, 5000); 
-    
-                timer2 = setTimeout(() => {
-                    progress2.classList.remove("active");
-                    toast2.style.display = "none";
-                }, 5300);
-            }
-        }, 5000)
-    }, 6000);
+let latitude;
+let longitude;
+let city;
+async function getLatLong(ipAddress){
+    ipAddress = ipAddress;
+    await getGeolocationFromIP(ipAddress, function(geoData) {
+        city = geoData.city;
+        searchBox.value = city;
+        latitude = geoData.latitude;
+        longitude = geoData.longitude;
+        addDataPoint();
+    });
 }
-function displayLoading1() {
-    loader.classList.add("display");
-    setTimeout(() => {
-        loader.classList.remove("display");
-       
-    }, 6000);
-}
-
-function hideLoading() {
-    loader.classList.remove("display");
+searchBox.addEventListener("keypress", setQuery);
+function setQuery(event) {
+    if (event.keyCode == 13) {
+        // getResults(searchBox.value);
+    }
 }
 document.addEventListener('DOMContentLoaded', async() => {
     displayLoading();
-
-    await getLocalIPAddress((ipAddress) => getResults(ipAddress));
+    await getLocalIPAddress((ipAddress) => getLatLong(ipAddress));
     toast1.style.display = "none";
     toast2.style.display = "none";
     remember = localStorage.getItem("hobby");
     if(remember == "motorcycle"){
         select.innerHTML = "<i class='fa fa-motorcycle' style='margin-left: -10px;margin-right: 10px;'></i> Motorcycle <i class='fa fa-caret-down' style='margin-left:10px;'></i>";
         document.getElementById("display").style.backgroundImage = "url('./images/motor.webp')";
-        document.getElementById("wave").style.display = "none";
-        document.getElementById("wave1").style.display = "none";
-        document.getElementById("wave2").style.display = "none";
-        document.getElementById("wave3").style.display = "none"
     }
     if(remember == "bicycle"){
         select.innerHTML = "<i class='fa fa-bicycle' style='margin-left: 0px;margin-right: 20px;'></i> Cyclist <i class='fa fa-caret-down' style='margin-left:20px;'></i>";
         document.getElementById("display").style.backgroundImage = "url('./images/bicycle.webp')";
-        document.getElementById("wave").style.display = "none";
-        document.getElementById("wave1").style.display = "none";
-        document.getElementById("wave2").style.display = "none";
-        document.getElementById("wave3").style.display = "none";
     }
     if(remember == "hiking"){
         select.innerHTML = "<i class='fas fa-hiking' style='margin-left: 0px;margin-right: 20px;'></i> &nbsp;&nbsp;Hiking <i class='fa fa-caret-down' style='margin-left:20px;'></i>";
         document.getElementById("display").style.backgroundImage = "url('./images/hiking.webp')";
-        document.getElementById("wave").style.display = "none";
-        document.getElementById("wave1").style.display = "none";
-        document.getElementById("wave2").style.display = "none";
-        document.getElementById("wave3").style.display = "none";
     }
 });
+
+function getCurrentDay(number){
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    let month = currentDate.getMonth() + 1;
+    let day = currentDate.getDate();
+    day = day + number;
+    if (month < 10) {
+        month = `0${month}`;
+    }
+    if (day < 10) {
+        day = `0${day}`;
+    }
+
+    const formattedDate = `${year}-${month}-${day}`;
+    return formattedDate
+} 
+// Function to retrieve data from Chrome storage
+function getDataFromStorage(callback) {
+    chrome.storage.local.get('dataArray', function(result) {
+        const dataArray = result.dataArray || [];
+        callback(dataArray);
+    });
+}
+function hideLoading() {
+    loader.classList.remove("display");
+}
+// Function to save data to Chrome storage
+function saveDataToStorage(dataArray) {
+    chrome.storage.local.set({ 'dataArray': dataArray });
+}
+
+async function getResults(lat, lon, date) {
+    displayLoading1();
+    let data;
+    await fetch(`https://api.openweathermap.org/data/3.0/onecall/day_summary?lat=${lat}&lon=${lon}&appid=fb9577ea5625ed8359e2cc81ede9d2d2&date=${date}`)
+        .then((response) => {
+            return response.json();
+        })
+        .then((response) => {
+            data = response;
+            console.log(response);
+        })
+        .catch((err) => {
+            console.log(err)
+            toast2.style.display = "block";
+
+            toast2.classList.add("active");
+            progress2.classList.add("active");
+
+            timer1 = setTimeout(() => {
+                toast2.classList.remove("active");
+            }, 5000); 
+
+            timer2 = setTimeout(() => {
+                progress2.classList.remove("active");
+                toast2.style.display = "none";
+            }, 5300);
+
+        });
+    return data;        
+}
+// Function to add new data point
+function addDataPoint() {
+    getDataFromStorage(function(dataArray) {
+        const currentDate = getCurrentDay(0);
+        const currentDate1 = getCurrentDay(1);
+        const currentDate2 = getCurrentDay(2);
+
+        const addDataAndSave = (date) => {
+            getResults(latitude, longitude, date)
+                .then((result) => {
+                    dataArray.push({ date: date, value: result });
+                    saveDataToStorage(dataArray);
+                    
+                })
+                .catch((error) => {
+                    console.error('Error fetching data:', error);
+                });
+        };
+
+        if (!dataArray.some(item => item.date === currentDate)) {
+            addDataAndSave(currentDate);
+        }
+
+        if (!dataArray.some(item => item.date === currentDate1)) {
+            addDataAndSave(currentDate1);
+        }
+
+        if (!dataArray.some(item => item.date === currentDate2)) {
+            addDataAndSave(currentDate2);
+        }
+    });
+    setTimeout(() => {
+        getDataFromStorage(function(dataArray1) {
+            const currentDate = getCurrentDay(0);
+            const currentDate1 = getCurrentDay(1);
+            const currentDate2 = getCurrentDay(2);
+            const foundItem = dataArray1.find(item => item.date === currentDate);
+            if (foundItem) {
+                let fday = document.querySelector(".first .day");
+                fday.innerHTML = `${foundItem.date}`;
+
+                let fwave = document.querySelector(".first .wind");
+                fwave.innerHTML = `${foundItem.value.wind.max.speed} km/h`;
+
+                let fwind = document.querySelector(".first .temperature");
+                fwind.innerHTML = `${parseFloat(foundItem.value.temperature.max  - 273.15).toFixed(1)} 'C`;
+
+                let ftem = document.querySelector(".first .cloud_cover");
+                ftem.innerHTML = `${foundItem.value.cloud_cover.afternoon} %`;
+            } 
+            const foundItem1 = dataArray1.find(item => item.date === currentDate1);
+            if (foundItem1) {
+                let sday = document.querySelector(".second .day");
+                sday.innerHTML = `${foundItem1.date}`;
+
+                let swave = document.querySelector(".second .wind");
+                swave.innerHTML = `${foundItem1.value.wind.max.speed} km/h`;
+
+                let swind = document.querySelector(".second .temperature");
+                swind.innerHTML = `${parseFloat(foundItem1.value.temperature.max - 273.15).toFixed(1)} 'C`;
+
+                let stem = document.querySelector(".second .cloud_cover");
+                stem.innerHTML = `${foundItem1.value.cloud_cover.afternoon} %`;
+            } 
+            const foundItem2 = dataArray1.find(item => item.date === currentDate2);
+            if (foundItem2) {
+                let tday = document.querySelector(".third .day");
+                tday.innerHTML = `${foundItem2.date}`;
+
+                let twave = document.querySelector(".third .wind");
+                twave.innerHTML = `${foundItem2.value.wind.max.speed} km/h`;
+
+                let twind = document.querySelector(".third .temperature");
+                twind.innerHTML = `${parseFloat(foundItem2.value.temperature.max  - 273.15).toFixed(1)} 'C`;
+
+                let ttem = document.querySelector(".third .cloud_cover");
+                ttem.innerHTML = `${foundItem2.value.cloud_cover.afternoon} %`;
+            } 
+            
+
+        });
+    }, 3000);
+}
+// Call addDataPoint function to add data daily
+            
+function displayLoading() {
+    loader.classList.add("display");
+    setTimeout(() => {
+        loader.classList.remove("display");
+        setTimeout(() => {
+        }, 3000)
+    }, 4000);
+}
+function displayLoading1() {
+    loader.classList.add("display");
+    setTimeout(() => {
+        loader.classList.remove("display");
+    }, 4000);
+}
+
+
 surfingitem.addEventListener("click", (event) => {
     
     select.innerHTML = "<img src='./images/icons8-surfing-48.png' style='width: 20px; margin-left: -20px;margin-right: 20px;'></img>   Surfing <i class='fa fa-caret-down' style='margin-left:10px;'></i>"  
     document.getElementById("display").style.backgroundImage = "url('./images/surfing.webp')";
-    document.getElementById("wave").style.display = "block";
-    document.getElementById("wave1").style.display = "block";
-    document.getElementById("wave2").style.display = "block";
-    document.getElementById("wave3").style.display = "block";
     localStorage.clear();
     localStorage.setItem("hobby", "surfing");
 
 });
 motoritem.addEventListener("click", (event) => {
-
     select.innerHTML = "<i class='fa fa-motorcycle' style='margin-left: -10px;margin-right: 10px;'></i> Motorcycle <i class='fa fa-caret-down' style='margin-left:10px;'></i>";
     document.getElementById("display").style.backgroundImage = "url('./images/motor.webp')";
-    document.getElementById("wave").style.display = "none";
-    document.getElementById("wave1").style.display = "none";
-    document.getElementById("wave2").style.display = "none";
-    document.getElementById("wave3").style.display = "none";
     localStorage.clear();
     localStorage.setItem("hobby", "motorcycle");
 });
@@ -117,10 +238,6 @@ cycleitem.addEventListener("click", (event) => {
 
     select.innerHTML = "<i class='fa fa-bicycle' style='margin-left: 0px;margin-right: 20px;'></i> Cyclist <i class='fa fa-caret-down' style='margin-left:20px;'></i>";
     document.getElementById("display").style.backgroundImage = "url('./images/bicycle.webp')";
-    document.getElementById("wave").style.display = "none";
-    document.getElementById("wave1").style.display = "none";
-    document.getElementById("wave2").style.display = "none";
-    document.getElementById("wave3").style.display = "none";
     localStorage.clear();
     localStorage.setItem("hobby", "bicycle");
 });
@@ -128,10 +245,6 @@ hikingitem.addEventListener("click", (event) => {
 
     select.innerHTML = "<i class='fas fa-hiking' style='margin-left: 0px;margin-right: 20px;'></i> &nbsp;&nbsp;Hiking <i class='fa fa-caret-down' style='margin-left:20px;'></i>";
     document.getElementById("display").style.backgroundImage = "url('./images/hiking.webp')";
-    document.getElementById("wave").style.display = "none";
-    document.getElementById("wave1").style.display = "none";
-    document.getElementById("wave2").style.display = "none";
-    document.getElementById("wave3").style.display = "none";
     localStorage.clear();
     localStorage.setItem("hobby", "hiking");
 });
@@ -140,173 +253,25 @@ search.addEventListener("keypress", (event) => {
         window.open(`https://trends.search-hub.co/v1/search/BREAP200923SRC?q=${search.value}`, '_blank');
     }
 });
-const searchBox = document.querySelector(".search_box");
-searchBox.addEventListener("keypress", setQuery);
-function setQuery(event) {
-    if (event.keyCode == 13) {
-        getResults(searchBox.value);
-    }
-}
-function fetchHandler(event) {
-    fetch(finalURL)
-        .then(response => response.json())
-        .then(json => {
-            hideLoading()
-            textOutput.innerText = json.contents.translated;
-        })
-}
-function getResults(query) {
-    console.log(query);
-    displayLoading1();
-    fetch(`http://api.weatherapi.com/v1/marine.json?key=${apiKey.weatherKey}&q=${query}&aqi=no&days=3`)
-        .then((response) => {
-            return response.json();
-        })
-        .then(displayResults)
-        .catch((err) => {
-            toast1.style.display = "block";
 
-            toast1.classList.add("active");
-            progress1.classList.add("active");
-
-            timer1 = setTimeout(() => {
-                toast1.classList.remove("active");
-            }, 5000); 
-
-            timer2 = setTimeout(() => {
-                progress1.classList.remove("active");
-                toast1.style.display = "none";
-            }, 5300);
-
-            timer3 = setTimeout(() => {
-                getResultsCalifornia();
-            }, 6000)
-
-   
-        });
-    fetch(`http://api.weatherapi.com/v1/forecast.json?key=${apiKey.weatherKey}&q=${query}&aqi=no&days=3`)
-        .then((response) => {
-            return response.json();
-        })
-        .then(displayrainResults)
-        .catch((err) => {
-            toast1.style.display = "block";
-    
-            toast1.classList.add("active");
-            progress1.classList.add("active");
-
-            timer1 = setTimeout(() => {
-                toast1.classList.remove("active");
-                
-            }, 5000); //1s = 1000 milliseconds
-
-            timer2 = setTimeout(() => {
-                progress1.classList.remove("active");
-                toast1.style.display = "none";
-            }, 5300);
-      
-        });
-   
-        
-    }
-function getResultsCalifornia() {
-    console.log("California");
-    displayLoading1();
-    fetch(`http://api.weatherapi.com/v1/marine.json?key=${apiKey.weatherKey}&q=149.115.246.250&aqi=no&days=3`)
-        .then((response) => {
-            return response.json();
-        })
-        .then(displayResults)
-        .catch((err) => {
-            toast2.style.display = "block";
-
-            toast2.classList.add("active");
-            progress2.classList.add("active");
-
-            timer1 = setTimeout(() => {
-                toast2.classList.remove("active");
-            }, 5000); 
-
-            timer2 = setTimeout(() => {
-                progress2.classList.remove("active");
-                toast2.style.display = "none";
-            }, 5300);
-        });
-    fetch(`http://api.weatherapi.com/v1/forecast.json?key=${apiKey.weatherKey}&q=149.115.246.250&aqi=no&days=3`)
-        .then((response) => {
-            return response.json();
-        })
-        .then(displayrainResults)
-        .catch((err) => {
-            toast2.style.display = "block";
-  
-            toast2.classList.add("active");
-            progress2.classList.add("active");
-
-            timer1 = setTimeout(() => {
-                toast2.classList.remove("active");
-                
-            }, 5000); //1s = 1000 milliseconds
-
-            timer2 = setTimeout(() => {
-                progress2.classList.remove("active");
-                toast2.style.display = "none";
-            }, 5300);
-        });
-    }
-
-function displayResults(response) {
-    console.log(response)
-    hideLoading();
-    searchBox.value = response.location.name;
-    let fday = document.querySelector(".first .day");
-    fday.innerHTML = `${response.forecast.forecastday[0].date}`;
-
-    let fwave = document.querySelector(".first .waveheight");
-    fwave.innerHTML = `${response.forecast.forecastday[0].hour[10].swell_ht_mt} m`;
-
-    let fwind = document.querySelector(".first .wind");
-    fwind.innerHTML = `${response.forecast.forecastday[0].hour[10].wind_kph} km/h`;
-
-    let ftem = document.querySelector(".first .temperature");
-    ftem.innerHTML = `${response.forecast.forecastday[0].day.avgtemp_c} 'C`;
-
-    sday = document.querySelector(".second .day");
-    sday.innerHTML = `${response.forecast.forecastday[1].date}`;
-    
-    let swave = document.querySelector(".second .waveheight");
-    swave.innerHTML = `${response.forecast.forecastday[1].hour[10].swell_ht_mt} m`;
-
-    let swind = document.querySelector(".second .wind");
-    swind.innerHTML = `${response.forecast.forecastday[1].hour[10].wind_kph} km/h`;
-
-    let stem = document.querySelector(".second .temperature");
-    stem.innerHTML = `${response.forecast.forecastday[1].day.avgtemp_c} 'C`;
-
-    let tday = document.querySelector(".third .day");
-    tday.innerHTML = `${response.forecast.forecastday[2].date}`;
-
-    let twave = document.querySelector(".third .waveheight");
-    twave.innerHTML = `${response.forecast.forecastday[2].hour[10].swell_ht_mt} m`;
-
-    let twind = document.querySelector(".third .wind");
-    twind.innerHTML = `${response.forecast.forecastday[2].hour[10].wind_kph} km/h`;
-
-    let ttem = document.querySelector(".third .temperature");
-    ttem.innerHTML = `${response.forecast.forecastday[2].day.avgtemp_c} 'C`;
-      
-}
-function displayrainResults(response) {
-    console.log(response);
-
-    let frain = document.querySelector(".first .rainratio");
-    frain.innerHTML = `${response.forecast.forecastday[0].hour[10].chance_of_rain} %`;
-
-    let srain = document.querySelector(".second .rainratio");
-    srain.innerHTML = `${response.forecast.forecastday[1].hour[10].chance_of_rain} %`;  
-
-    let train = document.querySelector(".third .rainratio");
-    train.innerHTML = `${response.forecast.forecastday[2].hour[10].chance_of_rain} %`;  
+function getGeolocationFromIP(ipAddress, callback) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                let response = JSON.parse(xhr.responseText);
+                let city1 = response.city;
+                let latitude1 = response.latitude;
+                let longitude1 = response.longitude;
+                callback({city: city1, latitude: latitude1, longitude: longitude1 });
+            } else {
+                console.error('Request failed. Status:', xhr.status);
+                callback(null);
+            }
+        }
+    };
+    xhr.open('GET', 'https://ipapi.co/' + ipAddress + '/json/');
+    xhr.send();
 }
 function getLocalIPAddress(callback) {
     let xhr = new XMLHttpRequest();
@@ -316,7 +281,6 @@ function getLocalIPAddress(callback) {
         if (xhr.status === 200) {
           let response = JSON.parse(xhr.responseText);
           ipAddress = response.ip;
-          console.log(ipAddress);  
           callback(ipAddress);
         } else {
           console.error('Request failed. Status:', xhr.status);
@@ -327,7 +291,7 @@ function getLocalIPAddress(callback) {
   
     xhr.open('GET', 'https://api.ipify.org?format=json');
     xhr.send();
-  }
+}
 
 const closeIcon1 = document.getElementById("close1");
 const closeIcon2 = document.getElementById("close2");
@@ -356,4 +320,73 @@ closeIcon2.addEventListener("click", () => {
     clearTimeout(timer1);
     clearTimeout(timer2);
 });
- 
+setTimeout(() => {
+    let netError = 0;
+
+    let fday = document.querySelector(".first .day");
+    console.log(fday)
+    if(fday.innerHTML == ""){
+        netError ++;
+    }
+    let fwave = document.querySelector(".first .wind");
+    if(fwave.innerHTML == ""){
+        netError ++;
+    }
+    let fwind = document.querySelector(".first .temperature");
+    if(fwind.innerHTML == ""){
+        netError ++;
+    }
+    let ftem = document.querySelector(".first .cloud_cover");
+    if(ftem.innerHTML == ""){
+        netError ++;
+    }
+    let sday = document.querySelector(".second .day");
+    if(sday.innerHTML == ""){
+        netError ++;
+    }
+    let swave = document.querySelector(".second .wind");
+    if(swave.innerHTML == ""){
+        netError ++;
+    }
+    let swind = document.querySelector(".second .temperature");
+    if(swind.innerHTML == ""){
+        netError ++;
+    }
+    let stem = document.querySelector(".second .cloud_cover");
+    if(stem.innerHTML == ""){
+        netError ++;
+    }
+    let tday = document.querySelector(".third .day");
+    if(tday.innerHTML == ""){
+        netError ++;
+    }
+    let twave = document.querySelector(".third .wind");
+    if(twave.innerHTML == ""){
+        netError ++;
+    }
+    let twind = document.querySelector(".third .temperature");
+    if(twind.innerHTML == ""){
+        netError ++;
+    }
+    let ttem = document.querySelector(".third .cloud_cover");
+    if(ttem.innerHTML == ""){
+        netError ++;
+    }
+    console.log(netError)
+    if(netError){
+        toast2.style.display = "block";
+
+        toast2.classList.add("active");
+        progress2.classList.add("active");
+
+        timer1 = setTimeout(() => {
+            toast2.classList.remove("active");
+        }, 5000); 
+
+        timer2 = setTimeout(() => {
+            progress2.classList.remove("active");
+            toast2.style.display = "none";
+        }, 5300);
+    }
+
+}, 10000);

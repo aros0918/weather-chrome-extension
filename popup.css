@@ -1,11 +1,14 @@
 body {
-   margin: 0;
+    min-width:450px;
+    min-height:900px;
+    margin: 0;
 }
 #display {
-   height: 100vh;
+   height: calc(100vh-150px);
    width:100%;
    background-image: url("./images/surfing.webp");
    background-size: 100% 100%;
+   overflow-y: auto;
 }
 #trans {
    margin: 0 50px 0 50px;

@@ -3,6 +3,7 @@
   "name": "Weather by hobby",
   "version": "0.1.0",
   "description": "Show relevant weather forecast according to selected hobby",
+  "permissions": ["storage"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -11,8 +12,6 @@
       "32": "images/icon32.png"
     }
   },
-  "permissions": [    
-  ],
   "chrome_url_overrides": {
     "newtab": "popup.html"
   }
