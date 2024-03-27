@@ -1,5 +1,5 @@
 body {
-    min-width:450px;
+    min-width:900px;
     min-height:900px;
     margin: 0;
 }
@@ -10,22 +10,32 @@ body {
    background-size: 100% 100%;
    overflow-y: auto;
 }
+#format {
+  margin-top: 10%;
+
+  flex: 1;
+}
+main {
+  flex: 1;
+}
+#trans1 {
+  display: flex;
+  gap: 45px; /* Assuming you meant 5 pixels */
+
+}
 #trans {
    position: absolute;
    left: 50%;
    translate: -50% -50%;
-   top: 50%;
+   top: 45%;
 
   /* padding: 1.5em; */
    justify-content: center;
-   max-width: 30em;
+   max-width: 40em;
    /* margin: 0 50px 0 50px;
    padding: 25px; */
 }
-#datatable{
-   /* margin-left: 10%; */
-   margin-top: 10px;
-}
+
 header {
    display: flex;
    padding: 20px 0 0;
@@ -34,7 +44,7 @@ header {
 
 header input {
    width: 100%;
-   max-width: 300px;
+   max-width: 200px;
    padding: 10px 15px;
    border: none;
    outline: none;
