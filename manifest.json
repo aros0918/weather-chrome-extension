@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Weather by hobby",
-  "version": "0.1.0",
-  "description": "Show relevant weather forecast according to selected hobby",
+  "name": "Weather by Media Joy",
+  "version": "2.0.0",
+  "description": "Show relevant weather forecast according to selected hobby made by Media Joy",
   "permissions": ["storage"],
   "action": {
     "default_popup": "popup.html",
