@@ -39,8 +39,56 @@ function setQuery(event) {
     }
 }
 document.addEventListener('DOMContentLoaded', async() => {
-    displayLoading();
-    await getLocalIPAddress((ipAddress) => getLatLong(ipAddress));
+    // displayLoading();
+    getDataFromStorage(function(dataArray1) {
+        const currentDate = getCurrentDay(0);
+        const currentDate1 = getCurrentDay(1);
+        const currentDate2 = getCurrentDay(2);
+        const foundItem = dataArray1.find(item => item.date === currentDate);
+        if (foundItem) {
+            let fday = document.querySelector(".first .day");
+            fday.innerHTML = `${foundItem.date}`;
+
+            let fwave = document.querySelector(".first .wind");
+            fwave.innerHTML = `${foundItem.value.wind.max.speed} km/h`;
+
+            let fwind = document.querySelector(".first .temperature");
+            fwind.innerHTML = `${parseFloat(foundItem.value.temperature.max  - 273.15).toFixed(1)} 'C`;
+
+            let ftem = document.querySelector(".first .cloud_cover");
+            ftem.innerHTML = `${foundItem.value.cloud_cover.afternoon} %`;
+        } 
+        const foundItem1 = dataArray1.find(item => item.date === currentDate1);
+        if (foundItem1) {
+            let sday = document.querySelector(".second .day");
+            sday.innerHTML = `${foundItem1.date}`;
+
+            let swave = document.querySelector(".second .wind");
+            swave.innerHTML = `${foundItem1.value.wind.max.speed} km/h`;
+
+            let swind = document.querySelector(".second .temperature");
+            swind.innerHTML = `${parseFloat(foundItem1.value.temperature.max - 273.15).toFixed(1)} 'C`;
+
+            let stem = document.querySelector(".second .cloud_cover");
+            stem.innerHTML = `${foundItem1.value.cloud_cover.afternoon} %`;
+        } 
+        const foundItem2 = dataArray1.find(item => item.date === currentDate2);
+        if (foundItem2) {
+            let tday = document.querySelector(".third .day");
+            tday.innerHTML = `${foundItem2.date}`;
+
+            let twave = document.querySelector(".third .wind");
+            twave.innerHTML = `${foundItem2.value.wind.max.speed} km/h`;
+
+            let twind = document.querySelector(".third .temperature");
+            twind.innerHTML = `${parseFloat(foundItem2.value.temperature.max  - 273.15).toFixed(1)} 'C`;
+
+            let ttem = document.querySelector(".third .cloud_cover");
+            ttem.innerHTML = `${foundItem2.value.cloud_cover.afternoon} %`;
+        } 
+        
+
+    });
     toast1.style.display = "none";
     toast2.style.display = "none";
     remember = localStorage.getItem("hobby");
@@ -64,6 +112,87 @@ function getCurrentDay(number){
     let month = currentDate.getMonth() + 1;
     let day = currentDate.getDate();
     day = day + number;
+    if (month == 1){
+        if(day > 31){
+            month = 2;
+            day = (day - 31);
+        }
+    }
+    if (month == 2){
+        if(day > 28){
+            month = 3;
+            day = (day - 28);
+        }
+    }
+    if (month == 3){
+        if(day > 31){
+            month = 4;
+            day = (day - 31);
+        }
+    }
+    if (month == 4){
+        if(day > 30){
+            month = 5;
+            day = (day - 30);
+        }
+    }
+    if (month == 5){
+        if(day > 31){
+            month = 6;
+            day = (day - 31);
+            
+        }
+    }
+    if (month == 6){
+        if(day > 30){
+            month = 7;
+            day = (day - 30);
+            
+        }
+    }
+    if (month == 7){
+        if(day > 31){
+            month = 8;
+            day = (day - 31);
+            
+        }
+    }
+    if (month == 8){
+        if(day > 31){
+            month = 9;
+            day = (day - 31);
+            
+        }
+    }
+    if (month == 9){
+        if(day > 30){
+            month = 10;
+            day = (day - 30);
+            
+        }
+    }
+    if (month == 10){
+        if(day > 31){
+            month = 11;
+            day = (day - 31);
+            
+        }
+    }
+    if (month == 11){
+        if(day > 30){
+            month = 12;
+            day = (day - 30);
+            
+        }
+    }
+    if (month == 12){
+        if(day > 31){
+            year = year + 1;
+            month = 1;
+            day = (day - 31);
+        }
+    }
+
     if (month < 10) {
         month = `0${month}`;
     }
@@ -72,6 +201,7 @@ function getCurrentDay(number){
     }
 
     const formattedDate = `${year}-${month}-${day}`;
+    console.log(formattedDate)
     return formattedDate
 } 
 // Function to retrieve data from Chrome storage
@@ -131,7 +261,7 @@ function addDataPoint() {
                 .then((result) => {
                     dataArray.push({ date: date, value: result });
                     saveDataToStorage(dataArray);
-                    
+                    console.log(result)
                 })
                 .catch((error) => {
                     console.error('Error fetching data:', error);
@@ -324,7 +454,6 @@ setTimeout(() => {
     let netError = 0;
 
     let fday = document.querySelector(".first .day");
-    console.log(fday)
     if(fday.innerHTML == ""){
         netError ++;
     }
@@ -374,19 +503,23 @@ setTimeout(() => {
     }
     console.log(netError)
     if(netError){
-        toast2.style.display = "block";
+        // toast2.style.display = "block";
 
-        toast2.classList.add("active");
-        progress2.classList.add("active");
+        // toast2.classList.add("active");
+        // progress2.classList.add("active");
 
-        timer1 = setTimeout(() => {
-            toast2.classList.remove("active");
-        }, 5000); 
+        // timer1 = setTimeout(() => {
+        //     toast2.classList.remove("active");
+        // }, 5000); 
 
-        timer2 = setTimeout(() => {
-            progress2.classList.remove("active");
-            toast2.style.display = "none";
-        }, 5300);
+        // timer2 = setTimeout(() => {
+        //     progress2.classList.remove("active");
+        //     toast2.style.display = "none";
+        // }, 5300);
+        displayLoading();
+
+        getLocalIPAddress((ipAddress) => getLatLong(ipAddress));
+
     }
 
-}, 10000);
+}, 3000);
